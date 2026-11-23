@@ -1,6 +1,6 @@
 # Cold Chain OT Testbed
 
-🇮🇹 [Versione italiana](README.md) · 🇬🇧 English
+[Versione italiana](README.md) · English
 
 A testbed for the security of connected commercial refrigeration. It starts from a real case, the sabotage campaigns against the refrigeration systems of European retail chains in October and November 2026, and reproduces its **class of weakness** on devices I own: management functions reachable from the network and poorly protected. The testbed comes in two versions, **vulnerable** and **hardened**, and measures the effect of each defense against the same attacks.
 
@@ -24,7 +24,7 @@ A testbed for the security of connected commercial refrigeration. It starts from
 
 ## Case study: the attack on the refrigeration systems of European retail chains
 
-📄 **Full document (Italian):** [case-study/case_study.pdf](case-study/case_study.pdf). A threat-intelligence-style report (TLP:CLEAR) with confidence levels, timeline, technical analysis, attribution, impacts, MITRE ATT&CK for ICS mapping and source references. Public sources consulted on 23 November 2026.
+**Full document (Italian):** [case-study/case_study.pdf](case-study/case_study.pdf). A threat-intelligence-style report (TLP:CLEAR) with confidence levels, timeline, technical analysis, attribution, impacts, MITRE ATT&CK for ICS mapping and source references. Public sources consulted on 23 November 2026.
 
 ### Executive summary
 
@@ -36,13 +36,13 @@ The attack required no malware. It was enough to find the management interfaces 
 
 | # | Confidence | Finding |
 |---|---|---|
-| 1 | 🟢 High | The first wave hit about 700 sites in France, with forced defrost cycles up to about 50 °C and at least 15 fire outbreaks. |
-| 2 | 🟢 High | The second wave hit about ten European countries, including Italy, and three EFS sites. |
-| 3 | 🟡 Moderate | The French government attributes the first wave to the Shahid Kaveh unit of Iran's IRGC. The forensic evidence has not been published. |
-| 4 | 🟢 High | The targets were found with the FOFA device search engine. |
-| 5 | 🔴 Low | The access vector is unclear: factory default credentials or the CVE-2025-41450 authentication bypass. |
-| 6 | 🟢 High | No malware: only legitimate interface functions were used. |
-| 7 | 🟢 High | At the EFS, a monitoring system independent from the compromised vendor prevented the loss of the products. |
+| 1 | High | The first wave hit about 700 sites in France, with forced defrost cycles up to about 50 °C and at least 15 fire outbreaks. |
+| 2 | High | The second wave hit about ten European countries, including Italy, and three EFS sites. |
+| 3 | Moderate | The French government attributes the first wave to the Shahid Kaveh unit of Iran's IRGC. The forensic evidence has not been published. |
+| 4 | High | The targets were found with the FOFA device search engine. |
+| 5 | Low | The access vector is unclear: factory default credentials or the CVE-2025-41450 authentication bypass. |
+| 6 | High | No malware: only legitimate interface functions were used. |
+| 7 | High | At the EFS, a monitoring system independent from the compromised vendor prevented the loss of the products. |
 
 ### The attack chain and the defenses that would have stopped it
 

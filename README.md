@@ -1,6 +1,6 @@
 # Cold Chain OT Testbed
 
-🇮🇹 Italiano · 🇬🇧 [English version](README.en.md)
+Italiano · [English version](README.en.md)
 
 Banco di prova per la sicurezza della refrigerazione commerciale connessa. Parte da un caso reale, le campagne di sabotaggio dei frigoriferi della grande distribuzione europea di ottobre e novembre 2026, e ne riproduce la **classe di debolezza** su dispositivi propri: funzioni di gestione raggiungibili dalla rete e protette male. Il banco esiste in due versioni, **vulnerabile** e **protetta**, e misura l'effetto di ogni difesa sugli stessi attacchi.
 
@@ -24,7 +24,7 @@ Project work da 3 CFU del corso di Cybersecurity, Laurea Magistrale in Ingegneri
 
 ## Case study: l'attacco ai sistemi di refrigerazione della grande distribuzione europea
 
-📄 **Documento completo:** [case-study/case_study.pdf](case-study/case_study.pdf). Rapporto in stile threat intelligence (TLP:CLEAR), con livelli di confidenza, cronologia, analisi tecnica, attribuzione, impatti, mappatura MITRE ATT&CK for ICS e riferimenti alle fonti. Fonti pubbliche consultate il 23 novembre 2026.
+**Documento completo:** [case-study/case_study.pdf](case-study/case_study.pdf). Rapporto in stile threat intelligence (TLP:CLEAR), con livelli di confidenza, cronologia, analisi tecnica, attribuzione, impatti, mappatura MITRE ATT&CK for ICS e riferimenti alle fonti. Fonti pubbliche consultate il 23 novembre 2026.
 
 ### Executive summary
 
@@ -36,13 +36,13 @@ L'attacco non ha richiesto malware. È bastato trovare su Internet le interfacce
 
 | # | Confidenza | Risultato |
 |---|---|---|
-| 1 | 🟢 Alta | La prima ondata ha colpito circa 700 siti in Francia, con sbrinamenti forzati fino a circa 50 °C e almeno 15 principi d'incendio. |
-| 2 | 🟢 Alta | La seconda ondata ha colpito una decina di paesi europei, compresa l'Italia, e tre siti dell'EFS. |
-| 3 | 🟡 Moderata | Il governo francese attribuisce la prima ondata all'unità Shahid Kaveh dell'IRGC iraniano. Le prove forensi non sono state pubblicate. |
-| 4 | 🟢 Alta | I bersagli sono stati individuati con il motore di ricerca di dispositivi FOFA. |
-| 5 | 🔴 Bassa | Il vettore d'accesso non è chiarito: credenziali di fabbrica oppure il bypass CVE-2025-41450. |
-| 6 | 🟢 Alta | Nessun malware: sono state usate solo funzioni legittime dell'interfaccia. |
-| 7 | 🟢 Alta | All'EFS un sistema di monitoraggio indipendente dal fornitore attaccato ha evitato la perdita dei prodotti. |
+| 1 | Alta | La prima ondata ha colpito circa 700 siti in Francia, con sbrinamenti forzati fino a circa 50 °C e almeno 15 principi d'incendio. |
+| 2 | Alta | La seconda ondata ha colpito una decina di paesi europei, compresa l'Italia, e tre siti dell'EFS. |
+| 3 | Moderata | Il governo francese attribuisce la prima ondata all'unità Shahid Kaveh dell'IRGC iraniano. Le prove forensi non sono state pubblicate. |
+| 4 | Alta | I bersagli sono stati individuati con il motore di ricerca di dispositivi FOFA. |
+| 5 | Bassa | Il vettore d'accesso non è chiarito: credenziali di fabbrica oppure il bypass CVE-2025-41450. |
+| 6 | Alta | Nessun malware: sono state usate solo funzioni legittime dell'interfaccia. |
+| 7 | Alta | All'EFS un sistema di monitoraggio indipendente dal fornitore attaccato ha evitato la perdita dei prodotti. |
 
 ### La catena d'attacco e le difese che l'avrebbero interrotta
 
