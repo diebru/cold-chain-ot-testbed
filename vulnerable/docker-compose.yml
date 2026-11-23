@@ -1,0 +1,93 @@
+# Banco di prova VULNERABILE.
+# Riproduce un impianto di refrigerazione con una rete piatta: controller,
+# broker, sonda, server degli allarmi e attaccante stanno tutti sulla stessa rete.
+#
+# Isolamento:
+# - la rete "negozio" è interna: nessun container collegato solo a lei
+#   (in particolare l'attaccante) può raggiungere Internet o la rete di casa,
+# - le interfacce web sono pubblicate solo su 127.0.0.1 del PC (o del Raspberry).
+#
+# Le immagini partono da python:3.12-slim e eclipse-mosquitto, disponibili sia per
+# x86_64 sia per arm64: lo stesso file gira sul PC e sul Raspberry Pi.
+
+name: coldchain-vulnerable
+
+services:
+  controller:
+    build: ./controller
+    environment:
+      TZ: Europe/Rome
+      SIM_SPEED: ${SIM_SPEED:-60}
+    volumes:
+      - fisica:/plant
+    networks:
+      negozio:
+        ipv4_address: 10.77.10.10
+      accesso_locale: {}
+    ports:
+      - "${BIND_ADDR:-127.0.0.1}:8080:80"
+    restart: unless-stopped
+
+  broker:
+    image: eclipse-mosquitto:2.0.20
+    volumes:
+      - ./broker/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+    networks:
+      negozio:
+        ipv4_address: 10.77.10.20
+    restart: unless-stopped
+
+  sensor:
+    build: ./sensor
+    environment:
+      TZ: Europe/Rome
+      SENSOR_SOURCE: ${SENSOR_SOURCE:-plant}
+      BROKER_HOST: broker
+    volumes:
+      - fisica:/plant:ro
+    networks:
+      negozio:
+        ipv4_address: 10.77.10.30
+    depends_on: [controller, broker]
+    restart: unless-stopped
+
+  alarm:
+    build: ./alarm
+    environment:
+      TZ: Europe/Rome
+      BROKER_HOST: broker
+      ALARM_HIGH_C: "-10"
+      ALARM_DELAY_READINGS: "3"
+    networks:
+      negozio:
+        ipv4_address: 10.77.10.40
+      accesso_locale: {}
+    ports:
+      - "${BIND_ADDR:-127.0.0.1}:8081:8080"
+    depends_on: [broker]
+    restart: unless-stopped
+
+  attacker:
+    build: ./attacker
+    environment:
+      TZ: Europe/Rome
+    volumes:
+      - ./attacker/attacks:/attacks
+    networks:
+      negozio:
+        ipv4_address: 10.77.10.66
+    init: true
+    restart: unless-stopped
+
+volumes:
+  # La "fisica": il controller scrive la temperatura vera del congelatore,
+  # la sonda la legge. Non passa dalla rete.
+  fisica:
+
+networks:
+  negozio:
+    internal: true
+    ipam:
+      config:
+        - subnet: 10.77.10.0/24
+  accesso_locale: {}
