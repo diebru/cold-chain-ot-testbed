@@ -14,8 +14,8 @@ Project work da 3 CFU del corso di Cybersecurity, Laurea Magistrale in Ingegneri
 |---|---|
 | [Case study](case-study/case_study.pdf) (PDF, 13 pagine) | Completo |
 | [Threat model](docs/threat_model.md) con MITRE ATT&CK for ICS | Completo |
-| [Banco vulnerabile](vulnerable/README.md) in Docker: controller simulato (web e Modbus/TCP), broker MQTT, sonda, server degli allarmi, scansione Nmap | Prima versione |
-| Tre scenari d'attacco: modifica di setpoint e sbrinamento, letture falsificate o ripetute, silenziamento del sensore | Prima versione |
+| [Banco vulnerabile](vulnerable/README.md) in Docker: regolatori di banco, supervisore con login e gateway Modbus/TCP, telegestione, monitoraggio indipendente via MQTT, scansione Nmap | Prima versione |
+| Tre scenari d'attacco: parametri e soglie d'allarme dal supervisore, letture falsificate o ripetute, silenziamento della sonda indipendente | Prima versione |
 | Banco protetto: segmentazione, firewall, VPN WireGuard, autenticazione, TLS, letture firmate, heartbeat, sensore indipendente | Da fare |
 | Porting su Raspberry Pi con sensore di temperatura reale (DS18B20) | Da fare |
 | Rilevamento di anomalie fisiche e tabella dei risultati prima/dopo | Da fare |
@@ -67,9 +67,10 @@ Tutte le misure erano note e raccomandate prima dell'attacco.
 
 | Lezione dal caso | Nel banco di prova |
 |---|---|
-| Bastava raggiungere l'interfaccia e usarne le funzioni previste | **Scenario 1:** modifica del setpoint e sbrinamento forzato su un'interfaccia web e Modbus/TCP senza autenticazione |
-| Chi controlla il canale delle misure può nascondere l'attacco | **Scenario 2:** letture MQTT falsificate o ripetute (replay) |
-| Gli attaccanti hanno toccato anche le soglie d'allarme | **Scenario 3:** silenziamento del sensore perché l'allarme non scatti |
+| Bastava raggiungere l'interfaccia, entrare con le credenziali di fabbrica e usarne le funzioni previste | **Scenario 1:** accesso al supervisore con le credenziali del manuale, oppure dal gateway Modbus/TCP senza login, e sbrinamento lungo e caldo |
+| Gli attaccanti hanno toccato anche le soglie d'allarme | **Scenario 1:** soglia d'allarme alzata, il supervisore resta muto e il manutentore non viene avvisato |
+| Chi controlla il canale delle misure può nascondere l'attacco | **Scenario 2** (estensione): letture del monitoraggio indipendente falsificate o ripetute (replay) |
+| Un monitoraggio indipendente funziona solo se è protetto anche lui | **Scenario 3** (estensione): silenziamento della sonda indipendente |
 | Esposizione su IP pubblico e manutenzione remota | Segmentazione, firewall, accesso del manutentore solo via VPN WireGuard |
 | Credenziali di fabbrica e autenticazione debole | Autenticazione su interfaccia web e MQTT, TLS sul canale |
 | Misure non verificabili | Letture firmate e con timestamp: un messaggio ripetuto viene scartato |

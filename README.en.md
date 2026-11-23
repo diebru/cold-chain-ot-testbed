@@ -14,8 +14,8 @@ A testbed for the security of connected commercial refrigeration. It starts from
 |---|---|
 | [Case study](case-study/case_study.pdf) (PDF, 13 pages, in Italian) | Complete |
 | [Threat model](docs/threat_model.md) with MITRE ATT&CK for ICS (in Italian) | Complete |
-| [Vulnerable testbed](vulnerable/README.md) in Docker: simulated controller (web and Modbus/TCP), MQTT broker, sensor, alarm server, Nmap scan (in Italian) | First version |
-| Three attack scenarios: setpoint and defrost tampering, spoofed or replayed readings, sensor silencing | First version |
+| [Vulnerable testbed](vulnerable/README.md) in Docker: case controllers, supervisor with login and Modbus/TCP gateway, remote maintenance service, independent MQTT monitoring, Nmap scan (in Italian) | First version |
+| Three attack scenarios: parameters and alarm thresholds changed on the supervisor, spoofed or replayed readings, silencing of the independent sensor | First version |
 | Hardened testbed: segmentation, firewall, WireGuard VPN, authentication, TLS, signed readings, heartbeat, independent sensor | To do |
 | Port to Raspberry Pi with a real temperature sensor (DS18B20) | To do |
 | Physical anomaly detection and before/after results table | To do |
@@ -67,9 +67,10 @@ All these measures were known and recommended before the attack.
 
 | Lesson from the case | In the testbed |
 |---|---|
-| Reaching the interface and using its built-in functions was enough | **Scenario 1:** setpoint change and forced defrost on a web and Modbus/TCP interface with no authentication |
-| Whoever controls the measurement channel can hide the attack | **Scenario 2:** spoofed or replayed MQTT readings |
-| The attackers also changed the alarm thresholds | **Scenario 3:** sensor silencing so that the alarm does not fire |
+| Reaching the interface, logging in with factory default credentials and using its built-in functions was enough | **Scenario 1:** access to the supervisor with the credentials from the manual, or through the Modbus/TCP gateway with no login, then a long and hot defrost cycle |
+| The attackers also changed the alarm thresholds | **Scenario 1:** alarm threshold raised, the supervisor stays silent and the maintainer is not notified |
+| Whoever controls the measurement channel can hide the attack | **Scenario 2** (extension): spoofed or replayed readings of the independent monitoring |
+| Independent monitoring works only if it is protected too | **Scenario 3** (extension): silencing of the independent sensor |
 | Exposure on a public IP and remote maintenance | Segmentation, firewall, maintainer access only through a WireGuard VPN |
 | Factory default credentials and weak authentication | Authentication on the web interface and MQTT, TLS on the channel |
 | Unverifiable measurements | Signed and timestamped readings: a replayed message is discarded |
