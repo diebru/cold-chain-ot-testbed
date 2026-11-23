@@ -6,16 +6,16 @@ Banco di prova per la sicurezza della refrigerazione commerciale connessa. Parte
 
 Project work da 3 CFU del corso di Cybersecurity, Laurea Magistrale in Ingegneria Informatica, Università di Bologna.
 
-> **Stato:** in corso. Il case study è completo, il banco di prova è in sviluppo.
+> **Stato:** in corso. Case study e threat model sono completi, il banco vulnerabile è alla prima versione.
 
 ## Contenuto
 
 | Parte | Stato |
 |---|---|
 | [Case study](case-study/case_study.pdf) (PDF, 13 pagine) | Completo |
-| Threat model con MITRE ATT&CK for ICS | In lavorazione |
-| Banco vulnerabile in Docker: controller simulato (web e Modbus/TCP), broker MQTT, server degli allarmi | Da fare |
-| Tre scenari d'attacco: modifica di setpoint e sbrinamento, letture falsificate o ripetute, silenziamento del sensore | Da fare |
+| [Threat model](docs/threat_model.md) con MITRE ATT&CK for ICS | Completo |
+| [Banco vulnerabile](vulnerable/README.md) in Docker: controller simulato (web e Modbus/TCP), broker MQTT, sonda, server degli allarmi, scansione Nmap | Prima versione |
+| Tre scenari d'attacco: modifica di setpoint e sbrinamento, letture falsificate o ripetute, silenziamento del sensore | Prima versione |
 | Banco protetto: segmentazione, firewall, VPN WireGuard, autenticazione, TLS, letture firmate, heartbeat, sensore indipendente | Da fare |
 | Porting su Raspberry Pi con sensore di temperatura reale (DS18B20) | Da fare |
 | Rilevamento di anomalie fisiche e tabella dei risultati prima/dopo | Da fare |
@@ -89,9 +89,9 @@ Tutte le misure erano note e raccomandate prima dell'attacco.
 
 ```
 case-study/    il case study in PDF
-vulnerable/    il banco vulnerabile (in arrivo)
+vulnerable/    il banco vulnerabile in Docker Compose
 hardened/      il banco protetto (in arrivo)
-docs/          threat model e relazione finale (in arrivo)
+docs/          threat model (la relazione finale è in arrivo)
 ```
 
 ## Autore

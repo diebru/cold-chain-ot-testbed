@@ -6,16 +6,16 @@ A testbed for the security of connected commercial refrigeration. It starts from
 
 3-credit project work for the Cybersecurity course, Master's Degree in Computer Engineering, University of Bologna.
 
-> **Status:** in progress. The case study is complete, the testbed is under development.
+> **Status:** in progress. The case study and the threat model are complete, the vulnerable testbed is at its first version.
 
 ## Contents
 
 | Part | Status |
 |---|---|
 | [Case study](case-study/case_study.pdf) (PDF, 13 pages, in Italian) | Complete |
-| Threat model with MITRE ATT&CK for ICS | In progress |
-| Vulnerable testbed in Docker: simulated controller (web and Modbus/TCP), MQTT broker, alarm server | To do |
-| Three attack scenarios: setpoint and defrost tampering, spoofed or replayed readings, sensor silencing | To do |
+| [Threat model](docs/threat_model.md) with MITRE ATT&CK for ICS (in Italian) | Complete |
+| [Vulnerable testbed](vulnerable/README.md) in Docker: simulated controller (web and Modbus/TCP), MQTT broker, sensor, alarm server, Nmap scan (in Italian) | First version |
+| Three attack scenarios: setpoint and defrost tampering, spoofed or replayed readings, sensor silencing | First version |
 | Hardened testbed: segmentation, firewall, WireGuard VPN, authentication, TLS, signed readings, heartbeat, independent sensor | To do |
 | Port to Raspberry Pi with a real temperature sensor (DS18B20) | To do |
 | Physical anomaly detection and before/after results table | To do |
@@ -89,9 +89,9 @@ All these measures were known and recommended before the attack.
 
 ```
 case-study/    the case study as a PDF (Italian)
-vulnerable/    the vulnerable testbed (coming soon)
+vulnerable/    the vulnerable testbed with Docker Compose
 hardened/      the hardened testbed (coming soon)
-docs/          threat model and final report (coming soon)
+docs/          threat model (the final report is coming soon)
 ```
 
 ## Author
