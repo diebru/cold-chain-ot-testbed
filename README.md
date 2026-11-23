@@ -1,5 +1,7 @@
 # Cold Chain OT Testbed
 
+🇮🇹 Italiano · 🇬🇧 [English version](README.en.md)
+
 Banco di prova per la sicurezza della refrigerazione commerciale connessa. Parte da un caso reale, le campagne di sabotaggio dei frigoriferi della grande distribuzione europea di ottobre e novembre 2026, e ne riproduce la **classe di debolezza** su dispositivi propri: funzioni di gestione raggiungibili dalla rete e protette male. Il banco esiste in due versioni, **vulnerabile** e **protetta**, e misura l'effetto di ogni difesa sugli stessi attacchi.
 
 Project work da 3 CFU del corso di Cybersecurity, Laurea Magistrale in Ingegneria Informatica, Università di Bologna.
