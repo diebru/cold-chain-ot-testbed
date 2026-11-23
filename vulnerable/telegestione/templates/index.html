@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Telegestione manutentore</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 2rem; max-width: 52rem; color: #1d2733 }
+  h1 { font-size: 1.4rem }
+  table { border-collapse: collapse }
+  td, th { padding: .3rem 1rem .3rem 0; border-bottom: 1px solid #e3e7eb; text-align: left }
+  .ALLARME { color: #a3261c; font-weight: 700 }
+  .empty { color: #66707a }
+</style>
+</head>
+<body>
+<h1>Telegestione manutentore: notifiche ricevute</h1>
+<p class="empty" id="empty">Nessuna notifica.</p>
+<table>
+  <thead><tr><th>Ora</th><th>Impianto</th><th>Banco</th><th>Tipo</th><th>Temperatura</th><th>Soglia</th></tr></thead>
+  <tbody id="rows"></tbody>
+</table>
+<script>
+async function refresh() {
+  const list = await (await fetch("/api/notifiche")).json()
+  document.getElementById("empty").style.display = list.length ? "none" : "block"
+  const rows = document.getElementById("rows")
+  rows.replaceChildren(...list.map(n => {
+    const tr = document.createElement("tr")
+    for (const v of [n.ora, n.impianto, n.banco, n.tipo, n.temperatura_c + " °C", n.soglia_c + " °C"]) {
+      const td = document.createElement("td")
+      td.textContent = v
+      tr.appendChild(td)
+    }
+    tr.className = n.tipo
+    return tr
+  }))
+}
+refresh()
+setInterval(refresh, 2000)
+</script>
+</body>
+</html>

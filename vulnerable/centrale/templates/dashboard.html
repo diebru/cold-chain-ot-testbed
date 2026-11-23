@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="utf-8">
-<title>Centrale allarmi</title>
+<title>Monitoraggio indipendente</title>
 <style>
   body { font-family: system-ui, sans-serif; margin: 2rem; max-width: 52rem; color: #1d2733 }
   h1 { font-size: 1.4rem }
@@ -15,15 +15,17 @@
 </style>
 </head>
 <body>
-<h1>Centrale allarmi, banco congelatore 1</h1>
+<h1>Monitoraggio indipendente, congelatore surgelati (banco 1)</h1>
 <p id="state" class="state ok">NORMALE</p>
 <table>
   <tr><td>Ultima temperatura ricevuta</td><td id="t">nessuna</td></tr>
   <tr><td>Ricevuta</td><td id="age">mai</td></tr>
   <tr><td>Timestamp e sequenza nel messaggio</td><td id="meta"></td></tr>
   <tr><td>Letture ricevute</td><td id="n">0</td></tr>
-  <tr><td>Soglia d'allarme</td><td>{{ s.soglia_c }} °C dopo {{ s.ritardo_letture }} letture consecutive</td></tr>
+  <tr><td>Allarme</td><td>sopra {{ s.soglia_c }} °C per {{ s.ritardo_letture }} letture consecutive</td></tr>
+  <tr><td>Allarme critico</td><td>sopra {{ s.soglia_critica_c }} °C, anche una sola lettura</td></tr>
 </table>
+<form method="post" action="/riconosci"><button>Riconosci allarme</button></form>
 <p class="note">L'età dell'ultima lettura è mostrata ma non genera allarmi: in questa versione manca l'heartbeat.</p>
 <h2>Eventi</h2>
 <table id="ev"></table>
@@ -31,7 +33,7 @@
 async function refresh() {
   const s = await (await fetch("/api/stato")).json()
   const st = document.getElementById("state")
-  st.textContent = s.allarme ? "ALLARME" : "NORMALE"
+  st.textContent = s.livello
   st.className = "state " + (s.allarme ? "alarm" : "ok")
   if (s.ultima_lettura) {
     document.getElementById("t").textContent = Number(s.ultima_lettura.temp_c).toFixed(1) + " °C"

@@ -3,7 +3,5 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-COPY alarm_server.py .
-COPY templates/ templates/
-EXPOSE 8080
-CMD ["python", "alarm_server.py"]
+COPY sonda.py .
+CMD ["python", "sonda.py"]

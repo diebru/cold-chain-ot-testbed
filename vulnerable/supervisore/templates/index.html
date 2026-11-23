@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>{{ model }} Supervisore refrigerazione</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 2rem; max-width: 64rem; color: #1d2733 }
+  h1 { font-size: 1.4rem; margin-bottom: 0 }
+  .sub { color: #66707a; margin-top: .2rem }
+  .cases { display: flex; flex-wrap: wrap; gap: 1.5rem }
+  .case { flex: 1 1 26rem; border: 1px solid #d5dbe1; padding: 1rem }
+  .case h2 { font-size: 1.1rem; margin: 0 }
+  .big { font-size: 2rem; font-weight: 700; margin: .4rem 0 }
+  .alarm { color: #a3261c }
+  table { border-collapse: collapse }
+  td { padding: .2rem 1rem .2rem 0; border-bottom: 1px solid #e3e7eb }
+  form { margin-top: .8rem; padding: .8rem; background: #f4f6f8 }
+  label { display: inline-block; min-width: 15rem }
+  input { width: 5rem }
+</style>
+</head>
+<body>
+<h1>{{ model }} Supervisore refrigerazione</h1>
+<p class="sub">{{ site }}, firmware {{ firmware }} (fuori supporto). Utente {{ user }}, <a href="/logout">esci</a></p>
+
+<div class="cases">
+{% for c in cases %}
+<div class="case">
+  <h2>{{ c.nome }}</h2>
+  <p class="big" id="t-{{ c.id }}">...</p>
+  <table>
+    <tr><td>Stato allarme</td><td id="a-{{ c.id }}"></td></tr>
+    <tr><td>Setpoint</td><td id="sp-{{ c.id }}"></td></tr>
+    <tr><td>Compressore</td><td id="comp-{{ c.id }}"></td></tr>
+    <tr><td>Sbrinamento</td><td id="sbr-{{ c.id }}"></td></tr>
+    <tr><td>Durata e fine sbrinamento</td><td id="par-{{ c.id }}"></td></tr>
+    <tr><td>Soglia e ritardo d'allarme</td><td id="soglia-{{ c.id }}"></td></tr>
+  </table>
+  <form method="post" action="/banco/{{ c.id }}/parametri">
+    <p><label>Setpoint (°C)</label><input name="setpoint"></p>
+    <p><label>Durata sbrinamento (min)</label><input name="durata_sbrinamento"></p>
+    <p><label>Fine sbrinamento (°C)</label><input name="fine_sbrinamento"></p>
+    <p><label>Soglia d'allarme alta (°C)</label><input name="soglia_allarme"></p>
+    <p><label>Ritardo d'allarme (min)</label><input name="ritardo_allarme"></p>
+    <button>Salva</button>
+  </form>
+  <form method="post" action="/banco/{{ c.id }}/sbrinamento"><button>Avvia sbrinamento</button></form>
+</div>
+{% endfor %}
+</div>
+
+<h2>Registro eventi</h2>
+<table id="ev"></table>
+
+<script>
+// Aggiorna i valori ogni 2 secondi senza ricaricare la pagina (i moduli restano compilati)
+function set(id, text) { document.getElementById(id).textContent = text }
+async function refresh() {
+  const r = await fetch("/api/stato")
+  if (r.status === 401) {
+    location.href = "/login"
+    return
+  }
+  const s = await r.json()
+  for (const c of s.banchi) {
+    if (!c.online) {
+      set("t-" + c.id, "comunicazione persa")
+      continue
+    }
+    set("t-" + c.id, c.temperatura_c.toFixed(1) + " °C")
+    document.getElementById("t-" + c.id).className = "big" + (c.allarme ? " alarm" : "")
+    set("a-" + c.id, c.allarme ? "ALLARME" : "normale")
+    set("sp-" + c.id, c.setpoint_c + " °C")
+    set("comp-" + c.id, c.compressore ? "acceso" : "spento")
+    set("sbr-" + c.id, c.sbrinamento_attivo ? "in corso, " + c.sbrinamento_residuo_min + " min residui" : "no")
+    set("par-" + c.id, c.durata_sbrinamento_min + " min, fino a " + c.fine_sbrinamento_c + " °C")
+    set("soglia-" + c.id, c.soglia_allarme_c + " °C dopo " + c.ritardo_allarme_min + " min")
+  }
+  document.getElementById("ev").innerHTML = s.eventi.map(e => "<tr><td>" + e.ora + "</td><td>" + e.origine + "</td><td>" + e.evento + "</td></tr>").join("")
+}
+refresh()
+setInterval(refresh, 2000)
+</script>
+</body>
+</html>

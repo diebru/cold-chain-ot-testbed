@@ -1,11 +1,15 @@
-"""Sonda di temperatura che pubblica le letture via MQTT. Versione VULNERABILE.
+"""Sonda TP-1 del monitoraggio indipendente (versione VULNERABILE).
+
+È un sistema separato dal supervisore, come quello che all'EFS ha dato
+l'allarme mentre il supervisore era compromesso. Misura il banco 1 con una
+sonda propria e pubblica le letture via MQTT verso una centrale propria.
 
 Pubblica in chiaro, senza credenziali e senza firma. Accetta comandi di
 configurazione remota (intervallo di invio, attivazione) da chiunque possa
 pubblicare sul suo topic di configurazione.
 
 Sorgente delle letture (variabile SENSOR_SOURCE):
-  plant     temperatura del congelatore virtuale, letta dal volume condiviso col controller
+  plant     temperatura del banco virtuale, letta dal volume condiviso con il regolatore
   synthetic dati sintetici attorno a -20 °C
   ds18b20   sonda reale DS18B20 sul bus 1-Wire del Raspberry Pi
 """
@@ -23,15 +27,15 @@ import paho.mqtt.client as mqtt
 BROKER = os.environ.get("BROKER_HOST", "broker")
 PORT = int(os.environ.get("BROKER_PORT", "1883"))
 SOURCE = os.environ.get("SENSOR_SOURCE", "plant")
-SENSOR_ID = os.environ.get("SENSOR_ID", "probe1")
-BASE = os.environ.get("TOPIC_BASE", "store/freezer1")
-PLANT_FILE = os.environ.get("PLANT_FILE", "/plant/state.json")
+SENSOR_ID = os.environ.get("SENSOR_ID", "sonda1")
+BASE = os.environ.get("TOPIC_BASE", "monitoraggio/banco1")
+PLANT_FILE = os.environ.get("PLANT_FILE", "/plant/banco1.json")
 
-DATA_TOPIC = f"{BASE}/temperature"
+DATA_TOPIC = f"{BASE}/temperatura"
 CONFIG_TOPIC = f"{BASE}/{SENSOR_ID}/config"
 INFO_TOPIC = f"{BASE}/{SENSOR_ID}/info"
 
-log = logging.getLogger("sensor")
+log = logging.getLogger("sonda")
 
 config = {"enabled": True, "interval_s": float(os.environ.get("INTERVAL_S", "2"))}
 

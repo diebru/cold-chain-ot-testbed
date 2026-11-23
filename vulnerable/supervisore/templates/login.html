@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>{{ model }} Supervisore refrigerazione</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 4rem auto; max-width: 24rem; color: #1d2733 }
+  h1 { font-size: 1.3rem; margin-bottom: .2rem }
+  .sub { color: #66707a; margin-top: 0 }
+  form { padding: 1.2rem; background: #f4f6f8 }
+  label { display: block; margin-top: .8rem }
+  input { width: 100%; padding: .3rem; box-sizing: border-box }
+  button { margin-top: 1rem }
+  .err { color: #a3261c }
+</style>
+</head>
+<body>
+<h1>{{ model }} Supervisore refrigerazione</h1>
+<p class="sub">{{ site }}, firmware {{ firmware }}</p>
+<form method="post" action="/login">
+  <label>Utente<input name="utente" autocomplete="username"></label>
+  <label>Password<input name="password" type="password" autocomplete="current-password"></label>
+  <button>Accedi</button>
+  {% if error %}<p class="err">{{ error }}</p>{% endif %}
+</form>
+</body>
+</html>

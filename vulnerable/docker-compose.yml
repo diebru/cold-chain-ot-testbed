@@ -1,9 +1,14 @@
 # Banco di prova VULNERABILE.
-# Riproduce un impianto di refrigerazione con una rete piatta: controller,
-# broker, sonda, server degli allarmi e attaccante stanno tutti sulla stessa rete.
+#
+# Due reti, come in un supermercato:
+# - "campo": il bus di campo tra il supervisore e i regolatori di banco
+#   (negli impianti reali è di solito un bus seriale RS-485),
+# - "negozio": la rete IP del punto vendita, piatta. Ci stanno il supervisore,
+#   il monitoraggio indipendente (sonda, broker, centrale), il servizio di
+#   telegestione e l'attaccante.
 #
 # Isolamento:
-# - la rete "negozio" è interna: nessun container collegato solo a lei
+# - entrambe le reti sono interne: nessun container collegato solo a loro
 #   (in particolare l'attaccante) può raggiungere Internet o la rete di casa,
 # - le interfacce web sono pubblicate solo su 127.0.0.1 del PC (o del Raspberry).
 #
@@ -12,21 +17,76 @@
 
 name: coldchain-vulnerable
 
+x-python-env: &python-env
+  TZ: Europe/Rome
+  SIM_SPEED: ${SIM_SPEED:-60}
+
 services:
-  controller:
-    build: ./controller
+  # Impianto frigorifero (fornitore)
+
+  regolatore1:
+    build: ./regolatore
     environment:
-      TZ: Europe/Rome
-      SIM_SPEED: ${SIM_SPEED:-60}
+      <<: *python-env
+      CASE_ID: banco1
+      SETPOINT_C: "-20"
+      DEFROST_DURATION_MIN: "20"
+      DEFROST_END_C: "5"
+      DEFROST_INTERVAL_MIN: "360"
     volumes:
       - fisica:/plant
     networks:
+      campo:
+        ipv4_address: 10.77.20.11
+    restart: unless-stopped
+
+  regolatore2:
+    build: ./regolatore
+    environment:
+      <<: *python-env
+      CASE_ID: banco2
+      SETPOINT_C: "3"
+      DEFROST_DURATION_MIN: "15"
+      DEFROST_END_C: "10"
+      DEFROST_INTERVAL_MIN: "240"
+    volumes:
+      - fisica:/plant
+    networks:
+      campo:
+        ipv4_address: 10.77.20.12
+    restart: unless-stopped
+
+  supervisore:
+    build: ./supervisore
+    environment:
+      <<: *python-env
+      RC1_HOST: 10.77.20.11
+      RC2_HOST: 10.77.20.12
+      NOTIFY_URL: http://10.77.10.50:8080/notifica
+    networks:
+      campo:
+        ipv4_address: 10.77.20.10
       negozio:
         ipv4_address: 10.77.10.10
       accesso_locale: {}
     ports:
       - "${BIND_ADDR:-127.0.0.1}:8080:80"
+    depends_on: [regolatore1, regolatore2, telegestione]
     restart: unless-stopped
+
+  telegestione:
+    build: ./telegestione
+    environment:
+      TZ: Europe/Rome
+    networks:
+      negozio:
+        ipv4_address: 10.77.10.50
+      accesso_locale: {}
+    ports:
+      - "${BIND_ADDR:-127.0.0.1}:8082:8080"
+    restart: unless-stopped
+
+  # Monitoraggio indipendente (sistema separato, come all'EFS)
 
   broker:
     image: eclipse-mosquitto:2.0.20
@@ -37,27 +97,28 @@ services:
         ipv4_address: 10.77.10.20
     restart: unless-stopped
 
-  sensor:
-    build: ./sensor
+  sonda:
+    build: ./sonda
     environment:
       TZ: Europe/Rome
       SENSOR_SOURCE: ${SENSOR_SOURCE:-plant}
-      BROKER_HOST: broker
+      BROKER_HOST: 10.77.10.20
     volumes:
       - fisica:/plant:ro
     networks:
       negozio:
         ipv4_address: 10.77.10.30
-    depends_on: [controller, broker]
+    depends_on: [regolatore1, broker]
     restart: unless-stopped
 
-  alarm:
-    build: ./alarm
+  centrale:
+    build: ./centrale
     environment:
       TZ: Europe/Rome
-      BROKER_HOST: broker
+      BROKER_HOST: 10.77.10.20
       ALARM_HIGH_C: "-10"
       ALARM_DELAY_READINGS: "3"
+      CRITICAL_C: "-5"
     networks:
       negozio:
         ipv4_address: 10.77.10.40
@@ -67,12 +128,14 @@ services:
     depends_on: [broker]
     restart: unless-stopped
 
-  attacker:
-    build: ./attacker
+  # Attaccante
+
+  attaccante:
+    build: ./attaccante
     environment:
       TZ: Europe/Rome
     volumes:
-      - ./attacker/attacks:/attacks
+      - ./attaccante/attacks:/attacks
     networks:
       negozio:
         ipv4_address: 10.77.10.66
@@ -80,8 +143,8 @@ services:
     restart: unless-stopped
 
 volumes:
-  # La "fisica": il controller scrive la temperatura vera del congelatore,
-  # la sonda la legge. Non passa dalla rete.
+  # La "fisica": ogni regolatore scrive la temperatura vera del suo banco,
+  # la sonda indipendente la legge. Non passa dalla rete.
   fisica:
 
 networks:
@@ -90,4 +153,9 @@ networks:
     ipam:
       config:
         - subnet: 10.77.10.0/24
+  campo:
+    internal: true
+    ipam:
+      config:
+        - subnet: 10.77.20.0/24
   accesso_locale: {}

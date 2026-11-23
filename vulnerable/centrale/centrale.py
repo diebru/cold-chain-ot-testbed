@@ -1,14 +1,17 @@
-"""Server degli allarmi. Versione VULNERABILE.
+"""Centrale del monitoraggio indipendente (versione VULNERABILE).
 
-Si iscrive alle letture di temperatura e genera un allarme quando la temperatura
-resta sopra la soglia per un certo numero di letture consecutive (ritardo
-d'allarme, come nei sistemi reali, per non far scattare allarmi durante gli
-sbrinamenti brevi).
+Riceve le letture della sonda TP-1 e genera gli allarmi su due livelli, come
+molti sistemi di monitoraggio HACCP:
+- allarme: temperatura sopra ALARM_HIGH_C per ALARM_DELAY_READINGS letture
+  consecutive. Il ritardo evita falsi allarmi durante gli sbrinamenti brevi,
+- allarme critico: una sola lettura sopra CRITICAL_C basta, senza ritardo.
+  L'allarme critico resta memorizzato finché un operatore non lo riconosce.
 
 Debolezze volute:
 - accetta qualunque messaggio arrivi sul topic, senza verificarne l'origine,
 - non controlla timestamp né numeri di sequenza (un messaggio ripetuto vale come nuovo),
-- non ha heartbeat: se le letture smettono di arrivare, nessun allarme.
+- non ha heartbeat: se le letture smettono di arrivare, nessun allarme,
+- chiunque raggiunga la pagina può riconoscere (cancellare) un allarme.
 """
 
 import json
@@ -20,15 +23,16 @@ from collections import deque
 from datetime import datetime
 
 import paho.mqtt.client as mqtt
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, redirect, render_template, request
 
 BROKER = os.environ.get("BROKER_HOST", "broker")
 PORT = int(os.environ.get("BROKER_PORT", "1883"))
-TOPIC = os.environ.get("DATA_TOPIC", "store/+/temperature")
+TOPIC = os.environ.get("DATA_TOPIC", "monitoraggio/+/temperatura")
 ALARM_HIGH_C = float(os.environ.get("ALARM_HIGH_C", "-10"))
 ALARM_DELAY = int(os.environ.get("ALARM_DELAY_READINGS", "3"))
+CRITICAL_C = float(os.environ.get("CRITICAL_C", "-5"))
 
-log = logging.getLogger("alarm")
+log = logging.getLogger("centrale")
 
 
 class AlarmState:
@@ -39,7 +43,7 @@ class AlarmState:
         self.readings = 0
         self.above = 0
         self.below = 0
-        self.alarm = False
+        self.level = "NORMALE"  # NORMALE, ALLARME, ALLARME CRITICO
         self.events = deque(maxlen=40)
 
     def event(self, text):
@@ -58,23 +62,35 @@ class AlarmState:
             else:
                 self.below += 1
                 self.above = 0
-            raise_alarm = not self.alarm and self.above >= ALARM_DELAY
-            clear_alarm = self.alarm and self.below >= ALARM_DELAY
-            if raise_alarm:
-                self.alarm = True
-            if clear_alarm:
-                self.alarm = False
-        if raise_alarm:
-            self.event(f"ALLARME temperatura alta: {temp:.1f} °C (soglia {ALARM_HIGH_C:.1f} °C)")
-        if clear_alarm:
-            self.event(f"rientro dall'allarme: {temp:.1f} °C")
+            old = self.level
+            if temp > CRITICAL_C:
+                self.level = "ALLARME CRITICO"
+            elif self.level == "NORMALE" and self.above >= ALARM_DELAY:
+                self.level = "ALLARME"
+            elif self.level == "ALLARME" and self.below >= ALARM_DELAY:
+                self.level = "NORMALE"
+            new = self.level
+        if new != old:
+            if new == "NORMALE":
+                self.event(f"rientro dall'allarme: {temp:.1f} °C")
+            else:
+                self.event(f"{new}: {temp:.1f} °C (soglie {ALARM_HIGH_C:.1f} e {CRITICAL_C:.1f} °C)")
+
+    def acknowledge(self, who):
+        with self.lock:
+            old = self.level
+            self.level = "NORMALE"
+            self.above = self.below = 0
+        if old != "NORMALE":
+            self.event(f"allarme riconosciuto da {who}")
 
     def snapshot(self):
         with self.lock:
             age = round(time.time() - self.last_received, 1) if self.last_received else None
-            return {"allarme": self.alarm, "ultima_lettura": self.last, "eta_ultima_lettura_s": age,
-                    "letture_ricevute": self.readings, "soglia_c": ALARM_HIGH_C,
-                    "ritardo_letture": ALARM_DELAY, "eventi": list(self.events)}
+            return {"livello": self.level, "allarme": self.level != "NORMALE", "ultima_lettura": self.last,
+                    "eta_ultima_lettura_s": age, "letture_ricevute": self.readings,
+                    "soglia_c": ALARM_HIGH_C, "ritardo_letture": ALARM_DELAY, "soglia_critica_c": CRITICAL_C,
+                    "eventi": list(self.events)}
 
 
 state = AlarmState()
@@ -103,6 +119,13 @@ def dashboard():
     return render_template("dashboard.html", s=state.snapshot())
 
 
+@app.post("/riconosci")
+def acknowledge():
+    # Nessuna autenticazione: anche un attaccante può cancellare l'allarme.
+    state.acknowledge(request.remote_addr)
+    return redirect("/", code=303)
+
+
 @app.get("/api/stato")
 def api_status():
     return jsonify(state.snapshot())
@@ -111,13 +134,14 @@ def api_status():
 def main():
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(message)s")
     logging.getLogger("werkzeug").setLevel(logging.WARNING)
-    client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id="alarm-server")
+    client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id="centrale")
     client.on_connect = on_connect
     client.on_message = on_message
     client.reconnect_delay_set(min_delay=1, max_delay=5)
     client.connect_async(BROKER, PORT)
     client.loop_start()
-    state.event(f"server degli allarmi avviato, soglia {ALARM_HIGH_C:.1f} °C dopo {ALARM_DELAY} letture")
+    state.event(f"centrale avviata: allarme sopra {ALARM_HIGH_C:.1f} °C dopo {ALARM_DELAY} letture, "
+                f"critico sopra {CRITICAL_C:.1f} °C subito")
     app.run(host="0.0.0.0", port=8080, threaded=True, use_reloader=False)
 
 

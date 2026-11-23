@@ -1,4 +1,4 @@
-"""Scenario 3: silenziamento della sonda.
+"""Scenario 3: silenziamento della sonda del monitoraggio indipendente.
 
 La sonda accetta comandi di configurazione remota sul suo topic MQTT, senza
 verificare chi li manda. Lo script legge il messaggio di presentazione della
@@ -18,7 +18,7 @@ import uuid
 import paho.mqtt.client as mqtt
 
 BROKER = os.environ.get("BROKER_HOST", "10.77.10.20")
-INFO_TOPIC = os.environ.get("INFO_TOPIC", "store/+/+/info")
+INFO_TOPIC = os.environ.get("INFO_TOPIC", "monitoraggio/+/+/info")
 
 
 def find_sensors(client, wait_s=3):
