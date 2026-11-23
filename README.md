@@ -12,13 +12,13 @@ Project work da 3 CFU del corso di Cybersecurity, Laurea Magistrale in Ingegneri
 
 | Parte | Stato |
 |---|---|
-| [Case study](case-study/case_study.pdf) (PDF, 13 pagine) | ✅ Completo |
-| Threat model con MITRE ATT&CK for ICS | 🔄 In lavorazione |
-| Banco vulnerabile in Docker: controller simulato (web e Modbus/TCP), broker MQTT, server degli allarmi | ⏳ Da fare |
-| Tre scenari d'attacco: modifica di setpoint e sbrinamento, letture falsificate o ripetute, silenziamento del sensore | ⏳ Da fare |
-| Banco protetto: segmentazione, firewall, VPN WireGuard, autenticazione, TLS, letture firmate, heartbeat, sensore indipendente | ⏳ Da fare |
-| Porting su Raspberry Pi con sensore di temperatura reale (DS18B20) | ⏳ Da fare |
-| Rilevamento di anomalie fisiche e tabella dei risultati prima/dopo | ⏳ Da fare |
+| [Case study](case-study/case_study.pdf) (PDF, 13 pagine) | Completo |
+| Threat model con MITRE ATT&CK for ICS | In lavorazione |
+| Banco vulnerabile in Docker: controller simulato (web e Modbus/TCP), broker MQTT, server degli allarmi | Da fare |
+| Tre scenari d'attacco: modifica di setpoint e sbrinamento, letture falsificate o ripetute, silenziamento del sensore | Da fare |
+| Banco protetto: segmentazione, firewall, VPN WireGuard, autenticazione, TLS, letture firmate, heartbeat, sensore indipendente | Da fare |
+| Porting su Raspberry Pi con sensore di temperatura reale (DS18B20) | Da fare |
+| Rilevamento di anomalie fisiche e tabella dei risultati prima/dopo | Da fare |
 
 ---
 

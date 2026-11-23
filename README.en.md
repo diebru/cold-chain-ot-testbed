@@ -12,13 +12,13 @@ A testbed for the security of connected commercial refrigeration. It starts from
 
 | Part | Status |
 |---|---|
-| [Case study](case-study/case_study.pdf) (PDF, 13 pages, in Italian) | ✅ Complete |
-| Threat model with MITRE ATT&CK for ICS | 🔄 In progress |
-| Vulnerable testbed in Docker: simulated controller (web and Modbus/TCP), MQTT broker, alarm server | ⏳ To do |
-| Three attack scenarios: setpoint and defrost tampering, spoofed or replayed readings, sensor silencing | ⏳ To do |
-| Hardened testbed: segmentation, firewall, WireGuard VPN, authentication, TLS, signed readings, heartbeat, independent sensor | ⏳ To do |
-| Port to Raspberry Pi with a real temperature sensor (DS18B20) | ⏳ To do |
-| Physical anomaly detection and before/after results table | ⏳ To do |
+| [Case study](case-study/case_study.pdf) (PDF, 13 pages, in Italian) | Complete |
+| Threat model with MITRE ATT&CK for ICS | In progress |
+| Vulnerable testbed in Docker: simulated controller (web and Modbus/TCP), MQTT broker, alarm server | To do |
+| Three attack scenarios: setpoint and defrost tampering, spoofed or replayed readings, sensor silencing | To do |
+| Hardened testbed: segmentation, firewall, WireGuard VPN, authentication, TLS, signed readings, heartbeat, independent sensor | To do |
+| Port to Raspberry Pi with a real temperature sensor (DS18B20) | To do |
+| Physical anomaly detection and before/after results table | To do |
 
 ---
 
