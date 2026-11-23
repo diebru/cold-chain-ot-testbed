@@ -1,0 +1,22 @@
+# LaTeX
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Segreti e configurazioni locali
+.env
+*.key
+*.pem
+secrets/
+
+# Editor e sistema
+.vscode/
+.idea/
+.DS_Store
